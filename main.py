@@ -10,6 +10,7 @@ class Game:
         self.GAME_RES = self.W * self.TILE, self.H * self.TILE  # Dimension of the Game-part window
         self.RES = 900, 940
         self.FPS = 60
+        self.piece = [3]
 
     def check_borders(self, figure, field, i):
         if figure[i].x < 0 or figure[i].x > self.W - 1:
@@ -35,17 +36,19 @@ class Game:
     def get_score(self):
         return self.score
 
+
+        return self.
     def run(self):
         pygame.init()
         pygame.mixer.music.load('./music/Tetris.mp3')
         pygame.mixer.music.play()
 
-        screen = pygame.display.set_mode(A.RES)
-        game_screen = pygame.Surface(A.GAME_RES)
+        screen = pygame.display.set_mode(self.RES)
+        game_screen = pygame.Surface(self.GAME_RES)
         clock = pygame.time.Clock()
 
         # To prepare the grid
-        grid = [pygame.Rect(x * A.TILE, y * A.TILE, A.TILE, A.TILE) for x in range(A.W) for y in range(A.H)]
+        grid = [pygame.Rect(x * self.TILE, y * self.TILE, self.TILE, self.TILE) for x in range(self.W) for y in range(self.H)]
 
         # To generate colors
 
@@ -63,17 +66,17 @@ class Game:
 
         PIECES = {
             'I': figures_positions[0][0],
-            'O': figures_positions[0][1],
-            'S': figures_positions[0][2],
-            'Z': figures_positions[0][3],
-            'J': figures_positions[0][4],
-            'L': figures_positions[0][5],
-            'T': figures_positions[0][6],
+            'O': figures_positions[1][0],
+            'S': figures_positions[2][0],
+            'Z': figures_positions[3][0],
+            'J': figures_positions[4][0],
+            'L': figures_positions[5][0],
+            'T': figures_positions[6][0],
         }
 
 
         figures = [[pygame.Rect(x + A.W // 2, y + 1, 1, 1) for x, y in fig_pos] for fig_pos in figures_positions]
-        figure_rect = pygame.Rect(0, 0, A.TILE - 2, A.TILE - 2)
+        figure_rect = pygame.Rect(0, 0, self.TILE - 2, self.TILE - 2)
 
         anim_count, anim_speed, anim_limit = 0, 6, 2000
         figure, next_figure = deepcopy(choice(
@@ -86,7 +89,8 @@ class Game:
         scores = {0: 0, 1: 100, 2: 300, 3: 700,
                   4: 1500}  # Score and Bonus points depending on the number of lines destroyed
 
-        field = [[0 for i in range(A.W)] for j in range(A.H)]
+        field = [[0 for i in range(self.W)] for j in range(self.H)]
+
 
         background = pygame.image.load('./images/background.jpg').convert()
         game_background = pygame.image.load('./images/background2.jpg').convert()
@@ -170,7 +174,7 @@ class Game:
                 figure_old = deepcopy(figure)
                 for i in range(4):
                     figure[i].y += 1
-                    if not A.check_borders(figure, field, i):
+                    if not self.check_borders(figure, field, i):
                         for i in range(4):
                             field[figure_old[i].y][figure_old[i].x] = color  # To see the following figures
                         figure, color = next_figure, next_color
@@ -220,7 +224,6 @@ class Game:
                         clock.tick(200)
             pygame.display.flip()
             clock.tick()
-            print(grid)
 
 
 A = Game()

@@ -102,6 +102,7 @@ class SDG_QL(Game, ABC):
 
         # Rotate test_piece to match the desired move
         for i in range(0, rot):
+            for
             test_piece['rotation'] = (test_piece['rotation'] + 1) % len(PIECES[test_piece['shape']])
 
         # Test for move validity!
