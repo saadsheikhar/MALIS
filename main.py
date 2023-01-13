@@ -37,7 +37,6 @@ class Game:
         return self.score
 
 
-        return self.
     def run(self):
         pygame.init()
         pygame.mixer.music.load('./music/Tetris.mp3')
@@ -56,26 +55,26 @@ class Game:
 
         # To draw the 7 types of figures
 
-        figures_positions = [[(-1, 0), (-2, 0), (0, 0), (1, 0)],
+        figures_positions = [[(-2, 0), (-1, 0), (0, 0), (1, 0)],
                              [(0, -1), (-1, -1), (-1, 0), (0, 0)],
-                             [(-1, 0), (-1, 1), (0, 0), (0, -1)],
-                             [(0, 0), (-1, 0), (0, 1), (-1, -1)],
-                             [(0, 0), (0, -1), (0, 1), (-1, -1)],
-                             [(0, 0), (0, -1), (0, 1), (1, -1)],
-                             [(0, 0), (0, -1), (0, 1), (-1, 0)]]
+                             [(0, -1), (1, -1), (0, 0), (-1, 0)],
+                             [(0, 0), (0, -1), (1, 0), (-1, -1)],
+                             [(0, 0), (-1, 0), (1, 0), (-1, -1)],
+                             [(0, 0), (-1, 0), (1, 0), (1, -1)],
+                             [(-1, 0), (0, 0), (1, 0), (0, -1)]]
 
         PIECES = {
-            'I': figures_positions[0][0],
-            'O': figures_positions[1][0],
-            'S': figures_positions[2][0],
-            'Z': figures_positions[3][0],
-            'J': figures_positions[4][0],
-            'L': figures_positions[5][0],
-            'T': figures_positions[6][0],
+            '0': figures_positions[0][0], #I
+            '1': figures_positions[1][0],#O
+            '2': figures_positions[2][0],#S
+            '3': figures_positions[3][0],#Z
+            '4': figures_positions[4][0],#J
+            '5': figures_positions[5][0],#L
+            '6': figures_positions[6][0],#T
         }
 
 
-        figures = [[pygame.Rect(x + A.W // 2, y + 1, 1, 1) for x, y in fig_pos] for fig_pos in figures_positions]
+        figures = [[pygame.Rect(x + self.W // 2, y + 1, 1, 1) for x, y in fig_pos] for fig_pos in figures_positions]
         figure_rect = pygame.Rect(0, 0, self.TILE - 2, self.TILE - 2)
 
         anim_count, anim_speed, anim_limit = 0, 6, 2000
@@ -103,6 +102,7 @@ class Game:
         title_record = main_font.render('Record :', True, pygame.Color('purple'))
 
         while True:
+
             record = self.get_record()
             dx = 0  # To be able to move the figure horizontally
             rotate = False
@@ -119,6 +119,7 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     exit()
+                    '''
                 if event.type == pygame.KEYDOWN:  # If we press a button
                     if event.key == pygame.K_LEFT:
                         dx = -1
@@ -128,7 +129,7 @@ class Game:
                         anim_limit = 100
                     if event.key == pygame.K_UP:
                         rotate = True
-
+                    '''
             figure_old = deepcopy(figure)
 
             # To Rotate
@@ -180,6 +181,8 @@ class Game:
                         figure, color = next_figure, next_color
                         next_figure, next_color = deepcopy(choice(figures)), get_color()  # Generation of next figure
                         anim_limit = 2000
+                        print(figure)
+                        print(figures.index(figure))
                         break
             # To draw grid
             [pygame.draw.rect(game_screen, (40, 40, 40), i_rect, 1) for i_rect in grid]
