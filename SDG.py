@@ -89,7 +89,6 @@ def is_complete_line(board, y):
     :param y: int value (coordinate)
     :return: bool value
     """
-
     for x in range(W):
         if board[x][y] == BLANK:
             return False

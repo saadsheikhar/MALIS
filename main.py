@@ -92,7 +92,7 @@ class Game:
 
         field = [[0 for i in range(self.W)] for j in range(self.H)]
 
-
+        board = [['0' for i in range(self.H)] for i in range(self.W)]
 
         background = pygame.image.load('./images/Background.jpg').convert()
         game_background = pygame.image.load('./images/background2.jpg').convert()
@@ -113,17 +113,17 @@ class Game:
             screen.blit(game_screen, (20, 20))
             game_screen.blit(game_background, (0, 0))
 
-            board = [['0' for i in range(self.H)] for i in range(self.W)]
-            for x in range(len(field[0])):
+            for x in range(len(field)):
                 for y in range (len(field[1])):
-                    if type(field[y][x]) is int:
-                        board[x][y] = str(field[y][x])
+                    if field[x][y]!= 0:
+                        board[y][x] = '1'
+
             # Delay for full lines
             for i in range(lines):
                 pygame.time.wait(200)
 
             move = get_move(board, piece)
-            print(move)
+
 
             # To manage events
 
@@ -145,7 +145,7 @@ class Game:
             # To Rotate
             center = figure[0]
             if move is not None :
-                while u < move[1]:
+                while u < move[0]:
                     u += 1
                     for i in range(4):  # We move every point of the figure
                         x = figure[i].y - center.y
@@ -175,7 +175,7 @@ class Game:
             score += scores[lines]
             # To move x
             if move is not None:
-                while p < abs(move[0]):
+                while p < abs(move[1]):
                     p += 1
                     for i in range(4):  # We move every point of the figure
                         if move[0] > 0:
