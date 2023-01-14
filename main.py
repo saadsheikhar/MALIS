@@ -2,6 +2,10 @@ import pygame
 from copy import deepcopy
 from random import choice, randrange
 
+from SDG import get_move
+
+from utils import *
+
 
 class Game:
     def __init__(self):
@@ -10,7 +14,6 @@ class Game:
         self.GAME_RES = self.W * self.TILE, self.H * self.TILE  # Dimension of the Game-part window
         self.RES = 900, 940
         self.FPS = 60
-        self.piece = [3]
 
     def check_borders(self, figure, field, i):
         if figure[i].x < 0 or figure[i].x > self.W - 1:
@@ -27,7 +30,6 @@ class Game:
             with open('record', 'w') as file:
                 file.write('0')
 
-
     def set_record(self, record, score):
         best_score = max(int(record), score)
         with open('record', 'w') as file:
@@ -35,7 +37,6 @@ class Game:
 
     def get_score(self):
         return self.score
-
 
     def run(self):
         pygame.init()
@@ -47,7 +48,8 @@ class Game:
         clock = pygame.time.Clock()
 
         # To prepare the grid
-        grid = [pygame.Rect(x * self.TILE, y * self.TILE, self.TILE, self.TILE) for x in range(self.W) for y in range(self.H)]
+        grid = [pygame.Rect(x * self.TILE, y * self.TILE, self.TILE, self.TILE) for x in range(self.W) for y in
+                range(self.H)]
 
         # To generate colors
 
@@ -64,15 +66,14 @@ class Game:
                              [(-1, 0), (0, 0), (1, 0), (0, -1)]]
 
         PIECES = {
-            '0': figures_positions[0][0], #I
-            '1': figures_positions[1][0],#O
-            '2': figures_positions[2][0],#S
-            '3': figures_positions[3][0],#Z
-            '4': figures_positions[4][0],#J
-            '5': figures_positions[5][0],#L
-            '6': figures_positions[6][0],#T
+            '0': 'I',
+            '1': 'O',
+            '2': 'S',
+            '3': 'Z',
+            '4': 'J',
+            '5': 'L',
+            '6': 'T'
         }
-
 
         figures = [[pygame.Rect(x + self.W // 2, y + 1, 1, 1) for x, y in fig_pos] for fig_pos in figures_positions]
         figure_rect = pygame.Rect(0, 0, self.TILE - 2, self.TILE - 2)
@@ -83,6 +84,7 @@ class Game:
             figures))  # We want to keep a save of the figure before any modification of his attributes and make the choice random
 
         color, next_color = get_color(), get_color()
+        piece = {"shape": PIECES[str(figures.index(figure))], "rotation": 0, "x": W // 2 - 2, "y": -2}
 
         score, lines = 0, 0
         scores = {0: 0, 1: 100, 2: 300, 3: 700,
@@ -91,7 +93,8 @@ class Game:
         field = [[0 for i in range(self.W)] for j in range(self.H)]
 
 
-        background = pygame.image.load('./images/background.jpg').convert()
+
+        background = pygame.image.load('./images/Background.jpg').convert()
         game_background = pygame.image.load('./images/background2.jpg').convert()
 
         main_font = pygame.font.Font('./Fonts/font.ttf', 50)
@@ -102,7 +105,6 @@ class Game:
         title_record = main_font.render('Record :', True, pygame.Color('purple'))
 
         while True:
-
             record = self.get_record()
             dx = 0  # To be able to move the figure horizontally
             rotate = False
@@ -110,16 +112,22 @@ class Game:
             screen.blit(game_screen, (20, 20))
             game_screen.blit(game_background, (0, 0))
 
+            board = [['0' for i in range(self.H)] for i in range(self.W)]
+            for x in range(len(field[0])):
+                for y in range (len(field[1])):
+                    board[x][y] = str(field[y][x])
             # Delay for full lines
             for i in range(lines):
                 pygame.time.wait(200)
+
+            move = get_move(board, piece)
+            print(move)
 
             # To manage events
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     exit()
-                    '''
                 if event.type == pygame.KEYDOWN:  # If we press a button
                     if event.key == pygame.K_LEFT:
                         dx = -1
@@ -129,31 +137,32 @@ class Game:
                         anim_limit = 100
                     if event.key == pygame.K_UP:
                         rotate = True
-                    '''
+
             figure_old = deepcopy(figure)
 
             # To Rotate
             center = figure[0]
-            if rotate:
-                for i in range(4):  # We move every point of the figure
-                    x = figure[i].y - center.y
-                    y = figure[i].x - center.x
-                    figure[i].x = center.x - x
-                    figure[i].y = center.y + y
+            if move is not None :
+                for j in range(move[1]):
+                    for i in range(4):  # We move every point of the figure
+                        x = figure[i].y - center.y
+                        y = figure[i].x - center.x
+                        figure[i].x = center.x - x
+                        figure[i].y = center.y + y
 
-                    if not self.check_borders(figure, field, i):
-                        figure = deepcopy(figure_old)  # we restore the old figure because we are out of borders
-                        break
+                        if not self.check_borders(figure, field, i):
+                            figure = deepcopy(figure_old)  # we restore the old figure because we are out of borders
+                            break
 
             # Remove lines where they are completed
-            line, lines = A.H - 1, 0  # To count number of lines destroyed / remaining
-            for row in range(A.H - 1, -1, -1):
+            line, lines = self.H - 1, 0  # To count number of lines destroyed / remaining
+            for row in range(self.H - 1, -1, -1):
                 count = 0
-                for i in range(A.W):
+                for i in range(self.W):
                     if field[row][i]:
                         count += 1
                     field[line][i] = field[row][i]
-                if count < A.W:
+                if count < self.W:
                     line -= 1
                 else:
                     anim_speed += 1  # Increasing speed / Difficulty
@@ -162,11 +171,16 @@ class Game:
             # Compute score
             score += scores[lines]
             # To move x
-            for i in range(4):  # We move every point of the figure
-                figure[i].x += dx
-                if not self.check_borders(figure, field, i):
-                    figure = deepcopy(figure_old)  # we restore the old figure because we are out of borders
-                    break
+            if move is not None:
+                for j in range(abs(move[0])):
+                    for i in range(4):  # We move every point of the figure
+                        if move[0] > 0:
+                            figure[i].x += 1
+                        else:
+                            figure[i].x -= 1
+                        if not self.check_borders(figure, field, i):
+                            figure = deepcopy(figure_old)  # we restore the old figure because we are out of borders
+                            break
 
             # To move y
             anim_count += anim_speed
@@ -178,11 +192,12 @@ class Game:
                     if not self.check_borders(figure, field, i):
                         for i in range(4):
                             field[figure_old[i].y][figure_old[i].x] = color  # To see the following figures
+
                         figure, color = next_figure, next_color
+                        piece = {"shape": PIECES[str(figures.index(figure))], "rotation": 0, "x": W // 2 - 2, "y": -2}
+
                         next_figure, next_color = deepcopy(choice(figures)), get_color()  # Generation of next figure
                         anim_limit = 2000
-                        print(figure)
-                        print(figures.index(figure))
                         break
             # To draw grid
             [pygame.draw.rect(game_screen, (40, 40, 40), i_rect, 1) for i_rect in grid]
