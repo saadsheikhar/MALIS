@@ -78,7 +78,7 @@ class Game:
         figures = [[pygame.Rect(x + self.W // 2, y + 1, 1, 1) for x, y in fig_pos] for fig_pos in figures_positions]
         figure_rect = pygame.Rect(0, 0, self.TILE - 2, self.TILE - 2)
 
-        anim_count, anim_speed, anim_limit = 0, 6, 2000
+        anim_count, anim_speed, anim_limit = 0, 2000, 2000
         figure, next_figure = deepcopy(choice(
             figures)), deepcopy(choice(
             figures))  # We want to keep a save of the figure before any modification of his attributes and make the choice random
@@ -103,7 +103,8 @@ class Game:
         title = main_font.render('Machine Learning Tetris', True, pygame.Color('darkorange'))
         title_score = main_font.render('Score : ', True, pygame.Color('green'))
         title_record = main_font.render('Record :', True, pygame.Color('purple'))
-
+        u = 0
+        p = 0
         while True:
             record = self.get_record()
             dx = 0  # To be able to move the figure horizontally
@@ -115,7 +116,8 @@ class Game:
             board = [['0' for i in range(self.H)] for i in range(self.W)]
             for x in range(len(field[0])):
                 for y in range (len(field[1])):
-                    board[x][y] = str(field[y][x])
+                    if type(field[y][x]) is int:
+                        board[x][y] = str(field[y][x])
             # Delay for full lines
             for i in range(lines):
                 pygame.time.wait(200)
@@ -143,7 +145,8 @@ class Game:
             # To Rotate
             center = figure[0]
             if move is not None :
-                for j in range(move[1]):
+                while u < move[1]:
+                    u += 1
                     for i in range(4):  # We move every point of the figure
                         x = figure[i].y - center.y
                         y = figure[i].x - center.x
@@ -172,7 +175,8 @@ class Game:
             score += scores[lines]
             # To move x
             if move is not None:
-                for j in range(abs(move[0])):
+                while p < abs(move[0]):
+                    p += 1
                     for i in range(4):  # We move every point of the figure
                         if move[0] > 0:
                             figure[i].x += 1
@@ -195,7 +199,8 @@ class Game:
 
                         figure, color = next_figure, next_color
                         piece = {"shape": PIECES[str(figures.index(figure))], "rotation": 0, "x": W // 2 - 2, "y": -2}
-
+                        u =0
+                        p =0
                         next_figure, next_color = deepcopy(choice(figures)), get_color()  # Generation of next figure
                         anim_limit = 2000
                         break
@@ -233,7 +238,7 @@ class Game:
                 if field[0][i]:
                     self.set_record(record, score)
                     field = [[0 for i in range(self.W)] for i in range(self.H)]  # Clean game map
-                    anim_count, anim_speed, anim_limit = 0, 6, 2000  # Reset the speed to initial parameter
+                    anim_count, anim_speed, anim_limit = 0, 2000, 2000  # Reset the speed to initial parameter
                     score = 0
                     for i_rect in grid:  # Animated Ending
                         pygame.draw.rect(game_screen, get_color(), i_rect)

@@ -76,7 +76,7 @@ def add_to_board(board, piece):
         for y in range(TEMPLATEHEIGHT):
             if PIECES_IA[piece['shape']][piece['rotation']][y][x] != BLANK and x + piece['x'] < 10 and y + piece[
                 'y'] < 20:
-                board[x + piece['x']][y + piece['y']] = 1
+                board[x + piece['x']][y + piece['y']] = '1'
                 # DEBUGGING NOTE: SOMETIMES THIS IF STATEMENT ISN'T
                 # SATISFIED, WHICH NORMALLY WOULD RAISE AN ERROR.
                 # NOT SURE WHAT CAUSES THE INDICES TO BE THAT HIGH.
@@ -273,6 +273,8 @@ def sdg(board, piece):
         explore_change = explore_change * 0.99
     else:
         explore_change = 0
+    print(wx)
+    return move
 
 """
 def sdgql_main(mode, numOfRun):
@@ -315,3 +317,4 @@ def sdgql_main(mode, numOfRun):
 '''if __name__ == "__main__":
     sdgql_main('r', '0.5', 1)
     '''
+
