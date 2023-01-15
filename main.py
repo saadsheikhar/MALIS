@@ -78,7 +78,7 @@ class Game:
         figures = [[pygame.Rect(x + self.W // 2, y + 1, 1, 1) for x, y in fig_pos] for fig_pos in figures_positions]
         figure_rect = pygame.Rect(0, 0, self.TILE - 2, self.TILE - 2)
 
-        anim_count, anim_speed, anim_limit = 0, 2000, 2000
+        anim_count, anim_speed, anim_limit = 0, 100, 2000
         figure, next_figure = deepcopy(choice(
             figures)), deepcopy(choice(
             figures))  # We want to keep a save of the figure before any modification of his attributes and make the choice random
@@ -239,7 +239,7 @@ class Game:
                 if field[0][i]:
                     self.set_record(record, score)
                     field = [[0 for i in range(self.W)] for i in range(self.H)]  # Clean game map
-                    anim_count, anim_speed, anim_limit = 0, 2000, 2000  # Reset the speed to initial parameter
+                    anim_count, anim_speed, anim_limit = 0, 100, 2000  # Reset the speed to initial parameter
                     score = 0
                     for i_rect in grid:  # Animated Ending
                         get_w()
