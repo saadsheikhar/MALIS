@@ -2,7 +2,7 @@ import pygame
 from copy import deepcopy
 from random import choice, randrange
 
-from SDG import get_move
+from SDG import get_move, get_w
 
 from utils import *
 
@@ -41,7 +41,7 @@ class Game:
     def run(self):
         pygame.init()
         pygame.mixer.music.load('./music/Tetris.mp3')
-        pygame.mixer.music.play()
+        #pygame.mixer.music.play()
 
         screen = pygame.display.set_mode(self.RES)
         game_screen = pygame.Surface(self.GAME_RES)
@@ -105,6 +105,7 @@ class Game:
         title_record = main_font.render('Record :', True, pygame.Color('purple'))
         u = 0
         p = 0
+        get_w()
         while True:
             record = self.get_record()
             dx = 0  # To be able to move the figure horizontally
@@ -241,10 +242,12 @@ class Game:
                     anim_count, anim_speed, anim_limit = 0, 2000, 2000  # Reset the speed to initial parameter
                     score = 0
                     for i_rect in grid:  # Animated Ending
+                        get_w()
                         pygame.draw.rect(game_screen, get_color(), i_rect)
                         screen.blit(game_screen, (20, 20))
                         pygame.display.flip()
                         clock.tick(200)
+                        get_w()
             pygame.display.flip()
             clock.tick()
 

@@ -14,6 +14,8 @@ explore_change = 0
 def get_move(board, falling_piece):
     return sdg(board, falling_piece)
 
+def get_w():
+    print(wx)
 
 def get_parameters_x(board):
     # This function will calculate different parameters of the current board
@@ -28,7 +30,7 @@ def get_parameters_x(board):
     for i in range(0, W):  # Select a column
         for j in range(0, H):  # Search down starting from the top of the board
             if int(board[i][j]) > 0:  # Is the cell occupied?
-                heights[i] = W - j  # Store the height value
+                heights[i] = H - j  # Store the height value
                 break
 
     # Calculate the difference in heights
@@ -272,7 +274,6 @@ def sdg(board, piece):
         explore_change = explore_change * 0.99
     else:
         explore_change = 0
-    print(wx)
     return move
 
 """
