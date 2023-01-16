@@ -15,11 +15,15 @@ class Game(metaclass=ABCMeta):
         self.board = [['0' for i in range(self.H)] for i in range(self.W)]
         self.alpha = 0.01
         self.gamma = 0.9
+        self.field = [[0 for i in range(self.W)] for j in range(self.H)]
+        self.first = 0
+
+        self.test_board = deepcopy(self.board)
 
     def check_borders(self, figure, field, i):
         if figure[i].x < 0 or figure[i].x > self.W - 1:
             return False
-        elif figure[i].y > self.H - 1 or field[figure[i].y][figure[i].x]:
+        elif figure[i].y > self.H-1 or self.field[figure[i].y][figure[i].x]:
             return False
         return True
 
@@ -76,7 +80,7 @@ class Game(metaclass=ABCMeta):
             '6': 'T'
         }
 
-        figures = [[pygame.Rect(x + self.W // 2, y + 1, 1, 1) for x, y in fig_pos] for fig_pos in figures_positions]
+        figures = [[pygame.Rect(x + self.W // 2, y+1, 1, 1) for x, y in fig_pos] for fig_pos in figures_positions]
         figure_rect = pygame.Rect(0, 0, self.TILE - 2, self.TILE - 2)
 
         anim_count, anim_speed, anim_limit = 0, 100, 2000
@@ -91,7 +95,6 @@ class Game(metaclass=ABCMeta):
         scores = {0: 0, 1: 100, 2: 300, 3: 700,
                   4: 1500}  # Score and Bonus points depending on the number of lines destroyed
 
-        field = [[0 for i in range(self.W)] for j in range(self.H)]
 
         background = pygame.image.load('./images/Background.jpg').convert()
         game_background = pygame.image.load('./images/background2.jpg').convert()
@@ -108,22 +111,27 @@ class Game(metaclass=ABCMeta):
         TRANS = False
         current_move = [0, 0]
 
+
         while True:
             if self.falling_piece is None:
                 self.falling_piece = {"shape": PIECES[str(figures.index(figure))], "rotation": 0,
-                                   "x": int(W/2) -2, "y": -2}
+                                   "x": int(W/2) -2, "y":-2}
+
                 self.next_piece = {"shape": PIECES[str(figures.index(next_figure))], "rotation": 0,
-                                   "x": int(W/2) -2,  "y": -7}
+                                   "x": int(W / 2) - 2, "y": -2}
+
                 current_move = self.get_move()
                 u = 0
                 p = 0
                 ROTATE = True
                 TRANS = False
+                if self.falling_piece['shape'] == 'I':
+                    for i in range(4):
+                        figure[i].y += 3
 
-            for x in range(len(field)):
-                for y in range(len(field[1])):
-                    if field[x][y] != 0:
-                        self.board[y][x] = '1'
+
+
+
 
             record = self.get_record()
             dx = 0  # To be able to move the figure horizontally
@@ -155,31 +163,34 @@ class Game(metaclass=ABCMeta):
                     '''
             # To Rotate
             center = figure[0]
-            if ROTATE :
+
+            if ROTATE:
                 if current_move is not None:
                     while u < current_move[0]:
-                        figure_old = deepcopy(figure)
                         u += 1
+                        figure_old = deepcopy(figure)
+
                         for i in range(4):  # We move every point of the figure
                             x = figure[i].y - center.y
                             y = figure[i].x - center.x
                             figure[i].x = center.x - x
                             figure[i].y = center.y + y
 
-                        if not self.check_borders(figure, field, i):
+                        if not self.check_borders(figure, self.field, i):
                             figure = deepcopy(figure_old)  # we restore the old figure because we are out of borders
                             break
-            ROTATE = False
-            TRANS = True
+
+                    ROTATE = False
+                    TRANS = True
 
             # Remove lines where they are completed
             line, lines = self.H - 1, 0  # To count number of lines destroyed / remaining
             for row in range(self.H - 1, -1, -1):
                 count = 0
                 for i in range(self.W):
-                    if field[row][i]:
+                    if self.field[row][i]:
                         count += 1
-                    field[line][i] = field[row][i]
+                    self.field[line][i] = self.field[row][i]
                 if count < self.W:
                     line -= 1
                 else:
@@ -193,17 +204,17 @@ class Game(metaclass=ABCMeta):
             if TRANS:
                 if current_move is not None:
                     while p < abs(current_move[1]):
-                        figure_old = deepcopy(figure)
                         p += 1
+                        figure_old = deepcopy(figure)
                         for i in range(4):  # We move every point of the figure
                             if current_move[1] > 0:
                                 figure[i].x += 1
                             else:
                                 figure[i].x -= 1
-                            if not self.check_borders(figure, field, i):
+                            if not self.check_borders(figure, self.field, i):
                                 figure = deepcopy(figure_old)  # we restore the old figure because we are out of borders
                                 break
-            TRANS = False
+                    TRANS = False
 
             # To move y
             anim_count += anim_speed
@@ -212,18 +223,15 @@ class Game(metaclass=ABCMeta):
                 figure_old = deepcopy(figure)
                 for i in range(4):
                     figure[i].y += 1
-                    if not self.check_borders(figure, field, i):
+                    if not self.check_borders(figure, self.field, i):
                         for i in range(4):
-                            field[figure_old[i].y][figure_old[i].x] = color  # To see the following figures
+                            self.field[figure_old[i].y][figure_old[i].x] = color  # To see the following figures
 
-                        for x in range(len(field)):
-                            for y in range(len(field[1])):
-                                if field[x][y] != 0:
-                                    self.board[y][x] = '1'
                         figure, color = next_figure, next_color
                         self.falling_piece = None
                         next_figure, next_color = deepcopy(choice(figures)), get_color()  # Generation of next figure
                         anim_limit = 2000
+
                         break
 
             # To draw grid
@@ -235,7 +243,7 @@ class Game(metaclass=ABCMeta):
                 figure_rect.y = figure[i].y * self.TILE
                 pygame.draw.rect(game_screen, color, figure_rect)
 
-            for y, raw in enumerate(field):
+            for y, raw in enumerate(self.field):
                 for x, col in enumerate(raw):
                     if col:
                         figure_rect.x, figure_rect.y = x * self.TILE, y * self.TILE
@@ -257,9 +265,9 @@ class Game(metaclass=ABCMeta):
             screen.blit(main_font.render(record, True, pygame.Color('gold')), (625, 660))
             # If we loose
             for i in range(self.W):
-                if field[0][i]:
+                if self.field[0][i]:
                     self.set_record(record, score)
-                    field = [[0 for i in range(self.W)] for i in range(self.H)]  # Clean game map
+                    self.field = [[0 for i in range(self.W)] for i in range(self.H)]  # Clean game map
                     anim_count, anim_speed, anim_limit = 0, 100, 2000  # Reset the speed to initial parameter
                     score = 0
                     for i_rect in grid:  # Animated Ending

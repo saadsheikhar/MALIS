@@ -4,15 +4,22 @@ from utils import *
 import random
 import math
 from main import Game
+from copy import deepcopy
 import pygame
 
-wx = [-1, -1, -1, -30]  # Initial weight vector
+wx = [-0.1, -1, -1, -200]  # Initial weight vector
 explore_change = 0
 
 
 class SDG(Game, ABC):
 
     def get_move(self):
+
+        for x in range(len(self.field)):
+            for y in range(len(self.field[1])):
+                if self.field[x][y] != 0:
+                    self.board[y][x] = '1'
+
         return self.sdg(self.board, self.falling_piece)
 
     def get_parameters_x(self, board):
@@ -113,7 +120,7 @@ class SDG(Game, ABC):
             test_lines_removed, test_board = remove_complete_lines(test_board)
 
         height_sum, diff_sum, max_height, holes = self.get_parameters_x(test_board)
-        one_step_reward = 5 * (test_lines_removed * test_lines_removed) - (height_sum - reference_height)
+        one_step_reward = 5*(test_lines_removed)**4 - (height_sum - reference_height)
         return test_board, one_step_reward
 
     def find_best_move(self, board, piece):
@@ -148,10 +155,10 @@ class SDG(Game, ABC):
         best_score = max(score_list)
         best_move = move_list[score_list.index(best_score)]
 
-        if random.random() < explore_change:
-            move = move_list[random.randint(0, len(move_list) - 1)]
-        else:
-            move = best_move
+        # if random.random() < explore_change:
+        #     move = move_list[random.randint(0, len(move_list) - 1)]
+        # else:
+        move = best_move
         return move
 
     def sdg(self, board, piece):
@@ -181,18 +188,20 @@ class SDG(Game, ABC):
         if test_board is not None:
             new_params = self.get_parameters_x(test_board[0])
             one_step_reward = test_board[1]
+            print(one_step_reward)
         for i in range(0, len(wx)):
             wx[i] = wx[i] + self.alpha * wx[i] * (one_step_reward - old_params[i] + self.gamma * new_params[i])
         regularization_term = abs(sum(wx))
         for i in range(0, len(wx)):
             wx[i] = 100 * wx[i] / regularization_term
             wx[i] = math.floor(1e4 * wx[i]) / 1e4  # Rounds the weights
+        print("-- Updated wx: ", wx)
         if explore_change > 0.001:
             explore_change = explore_change * 0.99
         else:
             explore_change = 0
-        print(test_piece)
-        print(move)
+        print("-- explore_change wx: ", explore_change)
+        print(new_params)
         return move
 
 
