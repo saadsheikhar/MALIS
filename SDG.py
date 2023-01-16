@@ -191,6 +191,8 @@ class SDG(Game, ABC):
             explore_change = explore_change * 0.99
         else:
             explore_change = 0
+        print(test_piece)
+        print(move)
         return move
 
 
@@ -225,4 +227,4 @@ def sdgql_main(mode, numOfRun):
     # plot_ql(scoreArray, game_index_array, weightsMatrix, 0.01, 0.9, 0.5)
 
 
-sdgql_main('0.5', 100       )
+sdgql_main('0.5', 100)
